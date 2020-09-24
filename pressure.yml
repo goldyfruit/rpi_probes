@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    rpi_url: http://goldyfruitr01.vpnplus.to:3000
+    smashing_url: http://goldyfruitr01.vpnplus.to:3030
+
+  tasks:
+    - name: Retrieve pressure
+      uri:
+        url: "{{ rpi_url }}/pressure"
+        return_content: yes
+      register: data
+
+    - name: Update indoor pressure on dashboard
+      uri:
+        url: "{{ smashing_url }}/widgets/pressure"
+        method: POST
+        body_format: json
+        body: |
+          { "auth_token": "YOUR_AUTH_TOKEN", "current": "{{ data.json.pressure }}" }
+        status_code: 204
